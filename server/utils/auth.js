@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 // Set token secret and expiration date
-const secret = process.env.JWT_SECRET || 'fallbackSecret';
-const expiration = process.env.JWT_EXPIRATION || '2h';
+const secret = `${process.env.JWT_SECRET}` || 'fallbackSecret';
+const expiration = `${process.env.JWT_EXPIRATION}` || '2h';
 
 module.exports = {
   authMiddleware: function ({ req }) {
@@ -19,13 +19,19 @@ module.exports = {
     }
 
     try {
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      context.user = data;
+      console.log("Using JWT Secret:", secret);
+      const decoded = jwt.verify(token, secret);
+      context.user = decoded;
     } catch (error) {
       console.error("Invalid token:", error.message);
+      context.error = {
+        message: "Authentication failed",
+        code: "AUTH_FAILED"
+      };
     }
-
+    
     return context;
+    
   },
 
   signToken: function ({ username, email, _id }) {
@@ -33,6 +39,7 @@ module.exports = {
     if (!secret) {
       throw new Error("JWT secret is undefined or empty!");
     }
+    console.log("JWT Secret:", secret);
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

@@ -44,7 +44,7 @@ const resolvers = {
   },
 
   Mutation: {
-    login: async (_, { email, password }) => {
+    login: async (_, {email, password}) => {
       const user = await User.findOne({ email });
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new AuthenticationError("Invalid credentials");
@@ -56,7 +56,7 @@ const resolvers = {
       return { token, user };
     },
 
-    addUser: async (_, { username, email, password }) => {
+    addUser: async (_, {username,email,password}) => {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         throw new UserInputError("A user with this email already exists.");
@@ -72,8 +72,9 @@ const resolvers = {
 
       const savedUser = await newUser.save();
       const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
+        expiresIn: "2h",
       });
+      console.log('Add user', username, email, password);
       return { token, user: savedUser };
     },
     saveBook: async (_, { input }, { user }) => {

@@ -3,6 +3,7 @@ import { Form, Button, Alert } from "react-bootstrap";
 import { useMutation } from "@apollo/client";
 import { ADD_USER } from "../utils/mutations";
 import Auth from "../utils/auth";
+// import { UserInputError } from 'apollo-server';
 
 const SignupForm = () => {
   const [userFormData, setUserFormData] = useState({
@@ -15,6 +16,7 @@ const SignupForm = () => {
 
   const [addUser] = useMutation(ADD_USER, {
     onError: (error) => {
+      console.log(addUser.username, addUser.email, addUser.password),
       console.error('GraphQL Error:', error);
       console.error('GraphQL Error Details:', error.message, error.graphQLErrors, error.networkError);
       setShowAlert(true);
