@@ -5,12 +5,20 @@ const { expressMiddleware } = require('@apollo/server/express4');
 const db = require('./config/connection');
 const { authMiddleware } = require('./utils/auth');
 const { typeDefs, resolvers } = require('./schemas');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const corsOptions = {
+  origin: 'http://localhost:3000', // Allow only the frontend origin to access
+  credentials: true // <-- REQUIRED backend setting
+};
+
+app.use(cors(corsOptions));
 
 const server = new ApolloServer({
   typeDefs,

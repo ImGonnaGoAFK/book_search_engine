@@ -1,39 +1,38 @@
 const jwt = require("jsonwebtoken");
 
-// set token secret and expiration date
-const secret = "mysecretsshhhhh";
-const expiration = "2h";
+require('dotenv').config();
+
+// Set token secret and expiration date
+const secret = process.env.JWT_SECRET || 'fallbackSecret';
+const expiration = process.env.JWT_EXPIRATION || '2h';
 
 module.exports = {
-  // function for our authenticated routes
   authMiddleware: function ({ req }) {
-    // allows token to be sent via  req.query or headers
     let token = req.query.token || req.headers.authorization;
-
-    // ["Bearer", "<tokenvalue>"]
-    if (req.headers.authorization) {
-      token = token.split(" ").pop().trim();
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1].trim();
     }
 
     const context = { user: null };
-
     if (!token) {
       return context;
     }
 
-    // verify token and get user data out of it
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      context.user = data
-    } catch {
-      console.log("Invalid token");
+      context.user = data;
+    } catch (error) {
+      console.error("Invalid token:", error.message);
     }
 
     return context;
   },
+
   signToken: function ({ username, email, _id }) {
     const payload = { username, email, _id };
-
+    if (!secret) {
+      throw new Error("JWT secret is undefined or empty!");
+    }
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

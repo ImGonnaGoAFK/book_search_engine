@@ -8,7 +8,8 @@
     "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "install": "cd server && npm i && cd ../client && npm i",
     "build": "cd client && npm run build",
-    "render-build": "npm install && npm run build"
+    "render-build": "npm install && npm run build",
+    "seed": "cd server && npm run seed"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,11 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.4",
+    "@apollo/server": "^4.11.0",
+    "apollo-server-express": "^3.13.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "graphql": "^16.9.0"
   }
 }
