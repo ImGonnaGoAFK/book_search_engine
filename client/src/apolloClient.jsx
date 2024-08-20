@@ -20,7 +20,7 @@ console.log('Environment Variables:', process.env);
 
 // Define the HTTP link with the GraphQL endpoint
 const httpLink = new HttpLink({
-  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || 'https://book-search-engine-0ofb.onrender.com/graphql',
 });
 
 // Define the auth link to include the token in headers
