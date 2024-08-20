@@ -8,6 +8,8 @@ const { typeDefs, resolvers } = require("./schemas");
 const cors = require("cors");
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
+console.log('Database URI:', process.env.MONGODB_URI);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
