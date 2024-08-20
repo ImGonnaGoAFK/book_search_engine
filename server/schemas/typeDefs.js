@@ -5,7 +5,7 @@ type User {
     email: String
     password: String
     bookCount: Int
-    savedBooks: [Book]!
+    savedBooks: [Book]
 }
 
 type Book {
@@ -27,8 +27,8 @@ input BookInput {
 }
 
 type Auth {
-    token: ID!
-    user: User!
+    token: ID
+    user: User
 }
 
 type Query {

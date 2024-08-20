@@ -5,6 +5,8 @@ import { ADD_USER } from "../utils/mutations";
 import Auth from "../utils/auth";
 // import { UserInputError } from 'apollo-server';
 
+console.log('signup form')
+
 const SignupForm = () => {
   const [userFormData, setUserFormData] = useState({
     username: "",
@@ -16,15 +18,13 @@ const SignupForm = () => {
 
   const [addUser] = useMutation(ADD_USER, {
     onError: (error) => {
-      console.log(addUser.username, addUser.email, addUser.password),
+      console.log('this is an error');
       console.error('GraphQL Error:', error);
       console.error('GraphQL Error Details:', error.message, error.graphQLErrors, error.networkError);
       setShowAlert(true);
     },
     onCompleted: (data) => {
-      console.log("Mutation response data:", data);
       if (data && data.addUser) {
-        console.log(data.addUser.user);
         Auth.login(data.addUser.token);
       } else {
         console.error("No addUser data received");
@@ -61,7 +61,8 @@ const SignupForm = () => {
         password: "",
       });
     }
-  };
+  }
+  ;
 
   return (
     <>

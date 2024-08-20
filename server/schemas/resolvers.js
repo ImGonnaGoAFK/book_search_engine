@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User, Book } = require("../models");
 
+const secret = 'mysecretsshhhhh';
+
 const resolvers = {
   Query: {
     users: async () => {
@@ -50,8 +52,8 @@ const resolvers = {
         throw new AuthenticationError("Invalid credentials");
       }
 
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
+      const token = jwt.sign({ id: user._id }, secret, {
+        expiresIn: "2h",
       });
       return { token, user };
     },
@@ -71,7 +73,7 @@ const resolvers = {
       });
 
       const savedUser = await newUser.save();
-      const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ id: savedUser._id }, secret, {
         expiresIn: "2h",
       });
       console.log('Add user', username, email, password);
