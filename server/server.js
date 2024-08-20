@@ -7,21 +7,16 @@ const { authMiddleware } = require("./utils/auth");
 const { typeDefs, resolvers } = require("./schemas");
 const cors = require("cors");
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-
-console.log('Database URI:', process.env.MONGODB_URI);
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const corsOptions = {
-  origin: "http://localhost:3000", // Allow only the frontend origin to access
-  credentials: true, // <-- REQUIRED backend setting
-};
-
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: 'https://book-search-engine-0ofb.onrender.com',
+  credentials: true,
+}));
 
 app.use(authMiddleware);
 
