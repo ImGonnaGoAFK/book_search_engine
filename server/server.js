@@ -34,7 +34,7 @@ const server = new ApolloServer({
     return { user };
   },
   cors: {
-    origin: ['http://localhost:3000', 'https://your-production-domain.com'], // List allowed origins
+    origin: ['http://localhost:3000', 'https://render.com'], // List allowed origins
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }
