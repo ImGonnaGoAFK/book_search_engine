@@ -6,8 +6,8 @@ const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/googleboo
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    ssl: true, // Enable SSL, assuming your URI includes `ssl=true` you might not need this line
-    sslCAFile: '/path/to/ca-certificate.crt' // Optional: Specify if you have a custom CA
+    tls: true, // Enables TLS
+    tlsCAFile: '/path/to/ca-certificate.crt' // Path to CA certificate file if you need to specify it
 });
 
 const db = mongoose.connection;
