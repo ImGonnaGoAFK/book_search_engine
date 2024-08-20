@@ -39,7 +39,6 @@ const startApolloServer = async () => {
   // Use the same context function in both places for consistency
   const contextFunction = ({ req }) => {
     const user = req.user;
-    console.log("Context user:", user);
     return { user };
   };
 

@@ -26,16 +26,21 @@ const resolvers = {
     },
     me: async (_, __, { user }) => {
       if (!user) throw new AuthenticationError("You must be logged in");
-      return await User.findById(user._id);
+      const foundUser = await User.findById(user._id).populate("savedBooks");
+
+      // Ensure savedBooks is always an array
+      if (!foundUser.savedBooks) {
+        foundUser.savedBooks = [];
+      }
+
+      return foundUser;
     },
   },
 
   User: {
     savedBooks: async (user) => {
-      // Assuming savedBooks are stored by their IDs in the User model
-      return await Book.find({
-        _id: { $in: user.savedBooks },
-      });
+      if (!user.savedBooks) return [];
+      return user.savedBooks;
     },
   },
 
@@ -75,6 +80,7 @@ const resolvers = {
         username,
         email,
         password,
+        savedBooks: [],
       });
 
       const savedUser = await newUser.save();
@@ -110,12 +116,24 @@ const resolvers = {
         existingUser.savedBooks = [];
       }
 
+      const bookData = {
+        bookId: input.bookId,
+        authors: input.authors,
+        description: input.description,
+        title: input.title,
+        image: input.image,
+        link: input.link,
+      };
+
       const updatedUser = await User.findByIdAndUpdate(
         user._id,
-        { $addToSet: { savedBooks: input } },
+        { $addToSet: { savedBooks: bookData } },
         { new: true, runValidators: true }
       ).populate("savedBooks");
 
+      if (!updatedUser) {
+        throw new Error("User not found after update");
+      }
       return updatedUser;
     },
 

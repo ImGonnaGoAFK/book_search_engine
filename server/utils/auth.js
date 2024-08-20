@@ -18,7 +18,6 @@ module.exports = {
     try {
       const decoded = jwt.verify(token, secret);
       req.user = decoded;
-      console.log('Decoded user data:', req.user);
     } catch (error) {
       console.error('Invalid token:', error.message);
     }
