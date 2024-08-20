@@ -6,6 +6,8 @@ const db = require("./config/connection");
 const { authMiddleware } = require("./utils/auth");
 const { typeDefs, resolvers } = require("./schemas");
 const cors = require("cors");
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+console.log(process.env.NODE_ENV)
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +32,11 @@ const server = new ApolloServer({
     console.log("Context user:", user);
     return { user };
   },
+  cors: {
+    origin: ['http://localhost:3000', 'https://your-production-domain.com'], // List allowed origins
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }
 });
 
 // if we're in production, serve client/build as static assets
