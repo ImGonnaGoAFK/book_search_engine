@@ -7,7 +7,6 @@ mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     tls: true, // Enables TLS
-    tlsCAFile: '/path/to/ca-certificate.crt' // Path to CA certificate file if you need to specify it
 });
 
 const db = mongoose.connection;
