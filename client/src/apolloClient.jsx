@@ -6,12 +6,12 @@ import Auth from './utils/auth';
 if (typeof process === 'undefined') {
   globalThis.process = {
     env: {
-      REACT_APP_GRAPHQL_ENDPOINT: 'http://localhost:3001/graphql', // Default value
+      REACT_APP_GRAPHQL_ENDPOINT: 'https://book-search-engine-0ofb.onrender.com/graphql', // Default value
     },
   };
 } else if (typeof process.env === 'undefined') {
   process.env = {
-    REACT_APP_GRAPHQL_ENDPOINT: 'http://localhost:3001/graphql', // Default value
+    REACT_APP_GRAPHQL_ENDPOINT: 'https://book-search-engine-0ofb.onrender.com/graphql', // Default value
   };
 }
 
