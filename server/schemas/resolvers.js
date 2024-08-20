@@ -2,6 +2,7 @@ const { AuthenticationError } = require("apollo-server-express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User, Book } = require("../models");
+const { signToken } = require("../utils/auth");
 
 const secret = "mysecretsshhhhh";
 
@@ -47,21 +48,20 @@ const resolvers = {
 
   Mutation: {
     login: async (_, { email, password }) => {
-      // Find the user by email
       const user = await User.findOne({ email });
       if (!user) {
-        throw new AuthenticationError('Invalid credentials');
+        throw new AuthenticationError("Invalid credentials");
       }
-    
-      // Compare the provided password with the hashed password
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        throw new AuthenticationError('Invalid credentials');
+        throw new AuthenticationError("Invalid credentials");
       }
-    
-      // Generate JWT token after successful authentication
-      const token = jwt.sign({ id: user._id }, secret, { expiresIn: '2h' });
-    
+      const token = signToken(
+        { username: user.username, email: user.email, _id: user._id },
+        secret,
+        { expiresIn: "2h" }
+      );
+
       return { token, user };
     },
 
@@ -70,18 +70,26 @@ const resolvers = {
       if (existingUser) {
         throw new UserInputError("A user with this email already exists.");
       }
-    
+
       const newUser = new User({
         username,
         email,
         password,
       });
-    
+
       const savedUser = await newUser.save();
-      const token = jwt.sign({ id: savedUser._id }, secret, {
-        expiresIn: "2h",
-      });
-    
+      const token = signToken(
+        {
+          username: savedUser.username,
+          email: savedUser.email,
+          _id: savedUser._id,
+        },
+        secret,
+        {
+          expiresIn: "2h",
+        }
+      );
+
       console.log("Add user", username, email, password);
       return { token, user: savedUser };
     },
@@ -90,10 +98,20 @@ const resolvers = {
         throw new AuthenticationError("You must be logged in to save a book.");
       }
 
-      const userId = user._id;
+      const existingUser = await User.findById(user._id);
+      if (!existingUser) {
+        console.log("User ID in saveBook:", user.id);
+        console.log("Input for savedBooks:", input);
+        console.error("User not found in the database:", user.id);
+        throw new Error("User not found");
+      }
+
+      if (!existingUser.savedBooks) {
+        existingUser.savedBooks = [];
+      }
 
       const updatedUser = await User.findByIdAndUpdate(
-        userId,
+        user._id,
         { $addToSet: { savedBooks: input } },
         { new: true, runValidators: true }
       ).populate("savedBooks");
@@ -103,7 +121,9 @@ const resolvers = {
 
     removeBook: async (_, { bookId }, { user }) => {
       if (!user) {
-        throw new AuthenticationError("You must be logged in to remove a book.");
+        throw new AuthenticationError(
+          "You must be logged in to remove a book."
+        );
       }
 
       const userId = user._id;

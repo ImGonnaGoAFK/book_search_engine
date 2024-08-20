@@ -11,17 +11,28 @@ const LoginForm = () => {
 
   const [loginUser] = useMutation(LOGIN_USER, {
     onCompleted: (data) => {
-      Auth.login(data.login.token);
+      const token = data.login.token;
+      console.log("Received token:", token);
+      Auth.login(token);
+
+      // Verify the token is in localStorage immediately after login
+      const storedToken = localStorage.getItem('id_token');
+      console.log("Token in localStorage:", storedToken);
+      
+      if (!storedToken) {
+        console.error("Token was not stored properly.");
+      }
     },
     onError: (error) => {
+      console.log("There was an error", error);
       console.error("Full Apollo Error:", error);
       if (error.graphQLErrors) {
         error.graphQLErrors.forEach((err) => {
-            console.error("GraphQL Error:", err.message);
-            console.log("Detailed Error Object:", err);
-            console.log(JSON.stringify(err, null, 2));
+          console.error("GraphQL Error:", err.message);
+          console.log("Detailed Error Object:", err);
+          console.log(JSON.stringify(err, null, 2));
         });
-    }
+      }
       if (error.networkError) {
         console.error("Network Error:", error.networkError);
       }
@@ -35,19 +46,30 @@ const LoginForm = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
+  
     const form = event.currentTarget;
     if (form.checkValidity()) {
       setValidated(true); // Ensure validation results are shown
       try {
-        await loginUser({
+        const { data } = await loginUser({
           variables: userFormData,
         });
-      } catch (err) {
-        // Errors are handled by onError in useMutation
-      }
+        console.log('Login successful, token:', data.login.token);
+        Auth.login(data.login.token); // Log in and save the token
 
-      setUserFormData({ email: "", password: "" });
+        // Ensure token is available before making any further requests
+        setTimeout(() => {
+          const token = localStorage.getItem('id_token');
+          if (token) {
+            console.log("Token successfully stored and available:", token);
+          } else {
+            console.error("Token was not found in localStorage after login.");
+          }
+        }, 100); // Adding a short delay (100ms) to check for token availability
+        
+      } catch (err) {
+        console.error('Error during login:', err);
+      }
     } else {
       setValidated(true);
     }

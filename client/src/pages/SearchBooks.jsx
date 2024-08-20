@@ -52,8 +52,10 @@ const SearchBooks = () => {
   const handleSaveBook = async (bookId) => {
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
     if (!bookToSave) return;
+    
     const token = Auth.loggedIn() ? Auth.getToken() : null;
     if (!token) return false;
+  
     try {
       await saveBookMutation({
         variables: {
@@ -65,13 +67,24 @@ const SearchBooks = () => {
             image: bookToSave.image,
             link: bookToSave.link
           }
-        }
+        },
+        context: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       });
     } catch (e) {
-      console.error('Error saving book:', e);
-      console.log('Error message:', e.message);
-      console.log('GraphQL errors:', e.graphQLErrors);
-      console.log('Network error:', e.networkError);
+      console.error('Error saving book:', e.message);
+      if (e.graphQLErrors) {
+        e.graphQLErrors.forEach((err) => {
+          console.error('GraphQL Error:', err.message);
+          console.error('Detailed Error:', err);
+        });
+      }
+      if (e.networkError) {
+        console.error('Network Error:', e.networkError);
+      }
     }
   };
 
