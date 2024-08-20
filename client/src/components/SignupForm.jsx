@@ -5,8 +5,6 @@ import { ADD_USER } from "../utils/mutations";
 import Auth from "../utils/auth";
 // import { UserInputError } from 'apollo-server';
 
-console.log('signup form')
-
 const SignupForm = () => {
   const [userFormData, setUserFormData] = useState({
     username: "",
@@ -18,9 +16,14 @@ const SignupForm = () => {
 
   const [addUser] = useMutation(ADD_USER, {
     onError: (error) => {
-      console.log('this is an error');
-      console.error('GraphQL Error:', error);
-      console.error('GraphQL Error Details:', error.message, error.graphQLErrors, error.networkError);
+      console.log("this is an error");
+      console.error("GraphQL Error:", error);
+      console.error(
+        "GraphQL Error Details:",
+        error.message,
+        error.graphQLErrors,
+        error.networkError
+      );
       setShowAlert(true);
     },
     onCompleted: (data) => {
@@ -41,15 +44,22 @@ const SignupForm = () => {
     event.preventDefault();
 
     const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
+    if (!form.checkValidity()) {
       event.stopPropagation();
+      setShowAlert(true);
+      return;
     }
+
+    const trimmedFormData = {
+      username: userFormData.username.trim(),
+      email: userFormData.email.trim(),
+      password: userFormData.password.trim(),
+    };
 
     if (form.checkValidity()) {
       try {
         await addUser({
-          variables: userFormData,
+          variables: trimmedFormData,
         });
       } catch (err) {
         // Errors are handled by onError in useMutation
@@ -61,9 +71,7 @@ const SignupForm = () => {
         password: "",
       });
     }
-  }
-  ;
-
+  };
   return (
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>

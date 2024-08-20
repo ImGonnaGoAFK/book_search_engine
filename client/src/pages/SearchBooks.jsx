@@ -20,8 +20,6 @@ const SearchBooks = () => {
 
   const [saveBookMutation, { error }] = useMutation(SAVE_BOOK, {
     onCompleted: (data) => {
-      // Assuming the mutation returns the user object with updated savedBooks
-      // Add newly saved book's ID to the local state to update the UI accordingly
       setSavedBookIds([...savedBookIds, data.saveBook.savedBooks.at(-1).bookId]);
     }
   });
@@ -71,6 +69,9 @@ const SearchBooks = () => {
       });
     } catch (e) {
       console.error('Error saving book:', e);
+      console.log('Error message:', e.message);
+      console.log('GraphQL errors:', e.graphQLErrors);
+      console.log('Network error:', e.networkError);
     }
   };
 

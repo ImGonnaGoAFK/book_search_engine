@@ -21,6 +21,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use(authMiddleware);
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -31,7 +33,7 @@ const startApolloServer = async () => {
   await server.start();
 
   app.use('/graphql', expressMiddleware(server, {
-    context: ({ req }) => authMiddleware({ req })
+    context: ({ req }) => ({ user: req.user }),
   }));
 
   if (process.env.NODE_ENV === 'production') {

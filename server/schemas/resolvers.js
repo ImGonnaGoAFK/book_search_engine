@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User, Book } = require("../models");
 
-const secret = 'mysecretsshhhhh';
+const secret = "mysecretsshhhhh";
 
 const resolvers = {
   Query: {
@@ -46,37 +46,43 @@ const resolvers = {
   },
 
   Mutation: {
-    login: async (_, {email, password}) => {
+    login: async (_, { email, password }) => {
+      // Find the user by email
       const user = await User.findOne({ email });
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw new AuthenticationError("Invalid credentials");
+      if (!user) {
+        throw new AuthenticationError('Invalid credentials');
       }
-
-      const token = jwt.sign({ id: user._id }, secret, {
-        expiresIn: "2h",
-      });
+    
+      // Compare the provided password with the hashed password
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        throw new AuthenticationError('Invalid credentials');
+      }
+    
+      // Generate JWT token after successful authentication
+      const token = jwt.sign({ id: user._id }, secret, { expiresIn: '2h' });
+    
       return { token, user };
     },
 
-    addUser: async (_, {username,email,password}) => {
+    addUser: async (_, { username, email, password }) => {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         throw new UserInputError("A user with this email already exists.");
       }
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+    
       const newUser = new User({
         username,
         email,
-        password: hashedPassword,
+        password,
       });
-
+    
       const savedUser = await newUser.save();
       const token = jwt.sign({ id: savedUser._id }, secret, {
         expiresIn: "2h",
       });
-      console.log('Add user', username, email, password);
+    
+      console.log("Add user", username, email, password);
       return { token, user: savedUser };
     },
     saveBook: async (_, { input }, { user }) => {
@@ -85,21 +91,11 @@ const resolvers = {
       }
 
       const userId = user._id;
-      const { bookId, authors, description, title, image, link } = input;
-
-      const book = new Book({
-        bookId,
-        authors,
-        description,
-        title,
-        image,
-        link,
-      });
 
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { $addToSet: { savedBooks: book._id } },
-        { new: true }
+        { $addToSet: { savedBooks: input } },
+        { new: true, runValidators: true }
       ).populate("savedBooks");
 
       return updatedUser;
@@ -107,15 +103,14 @@ const resolvers = {
 
     removeBook: async (_, { bookId }, { user }) => {
       if (!user) {
-        throw new AuthenticationError(
-          "You must be logged in to remove a book."
-        );
+        throw new AuthenticationError("You must be logged in to remove a book.");
       }
 
-      const userId = user._id; 
+      const userId = user._id;
+
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { $pull: { savedBooks: bookId } },
+        { $pull: { savedBooks: { bookId } } },
         { new: true }
       ).populate("savedBooks");
 

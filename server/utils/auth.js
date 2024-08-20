@@ -7,27 +7,21 @@ module.exports = {
   authMiddleware: function ({ req }) {
     let token = req.query.token || req.headers.authorization;
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
-      token = req.headers.authorization.split(" ")[1].trim();
+      token = token.split(" ")[1].trim();
     }
 
-    const context = { user: null };
     if (!token) {
-      return context;
+      return req;
     }
 
     try {
-      console.log("Using JWT Secret:", secret);
       const decoded = jwt.verify(token, secret);
-      context.user = decoded;
+      req.user = decoded.data;
     } catch (error) {
       console.error("Invalid token:", error.message);
-      context.error = {
-        message: "Authentication failed",
-        code: "AUTH_FAILED"
-      };
     }
     
-    return context;
+    return req;
     
   },
 
@@ -36,7 +30,6 @@ module.exports = {
     if (!secret) {
       throw new Error("JWT secret is undefined or empty!");
     }
-    console.log("JWT Secret:", secret);
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };

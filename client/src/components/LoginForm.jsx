@@ -11,16 +11,17 @@ const LoginForm = () => {
 
   const [loginUser] = useMutation(LOGIN_USER, {
     onCompleted: (data) => {
-      Auth.login(data.loginUser.token);
+      Auth.login(data.login.token);
     },
     onError: (error) => {
       console.error("Full Apollo Error:", error);
       if (error.graphQLErrors) {
         error.graphQLErrors.forEach((err) => {
-          console.error("GraphQL Error:", err.message);
-          console.error("GraphQL Error Details:", err);
+            console.error("GraphQL Error:", err.message);
+            console.log("Detailed Error Object:", err);
+            console.log(JSON.stringify(err, null, 2));
         });
-      }
+    }
       if (error.networkError) {
         console.error("Network Error:", error.networkError);
       }
