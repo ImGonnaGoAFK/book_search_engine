@@ -24,6 +24,7 @@ const LoginForm = () => {
       }
     },
     onError: (error) => {
+      setShowAlert(true);
       console.log("There was an error", error);
       console.error("Full Apollo Error:", error);
       if (error.graphQLErrors) {
